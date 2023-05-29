@@ -3,6 +3,7 @@ import Header from "./Header";
 import Content from "./Content";
 import Footer from "./Footer";
 import UserInput from "./UserInput";
+import apiRequest from "./apiRequest";
 
 function App() {
   const API_URL = "http://localhost:3500/items";
@@ -31,29 +32,59 @@ function App() {
 
     setTimeout(() => {
       (async () => fetchItems())();
-    }, 2000);
+    }, 4000);
   }, []);
   // console.log("after useEffect");
 
-  const handleCheck = (id) => {
+  const handleCheck = async (id) => {
     const listItems = items.map((item) => {
       if (item.id === id) return { ...item, checked: !item.checked };
       else return item;
     });
     setItems(listItems);
+
+    const updatedItem = listItems.find((item) => item.id === id);
+
+    const updateOptions = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ checked: updatedItem.checked }),
+    };
+
+    const reqUrl = `${API_URL}/${id}`;
+    const result = await apiRequest(reqUrl, updateOptions);
+    if (result) setFetchError(result);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const listItems = items.filter((item) => item.id !== id);
     setItems(listItems);
+
+    const deleteOptions = { method: "DELETE" };
+    const reqUrl = `${API_URL}/${id}`;
+    const result = await apiRequest(reqUrl, deleteOptions);
+    if (result) setFetchError(result);
   };
 
-  const addNewItem = (item) => {
+  const addNewItem = async (item) => {
     const id = items.length ? items[items.length - 1].id + 1 : 1;
     const itemToBeAdded = { id, checked: false, item };
     const listItems = [...items, itemToBeAdded];
 
     setItems(listItems);
+
+    const postOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(itemToBeAdded),
+    };
+
+    const result = await apiRequest(API_URL, postOptions);
+    if (result) setFetchError(result);
   };
 
   const handleSubmit = (e) => {
