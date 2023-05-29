@@ -9,25 +9,30 @@ function App() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [search, setSearch] = useState("");
+  const [fetchError, setFetchError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // console.log("before useEffect");
-
   useEffect(() => {
     const fetchItems = async () => {
       try {
         const response = await fetch(API_URL);
+        if (!response.ok) throw Error("Did not get expected data!");
         const listItems = await response.json();
-
         console.log(listItems);
         setItems(listItems);
+        setFetchError(null);
       } catch (err) {
-        console.log(err.stack);
+        setFetchError(err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    (async () => fetchItems())();
+    setTimeout(() => {
+      (async () => fetchItems())();
+    }, 2000);
   }, []);
-
   // console.log("after useEffect");
 
   const handleCheck = (id) => {
@@ -69,13 +74,19 @@ function App() {
         search={search}
         setSearch={setSearch}
       />
-      <Content
-        items={items.filter((item) =>
-          item.item.toLowerCase().includes(search.toLowerCase())
+      <main>
+        {fetchError && <p style={{ color: "red" }}>Error: {fetchError}</p>}
+        {isLoading && <p>Loading items...</p>}
+        {!fetchError && !isLoading && (
+          <Content
+            items={items.filter((item) =>
+              item.item.toLowerCase().includes(search.toLowerCase())
+            )}
+            handleCheck={handleCheck}
+            handleDelete={handleDelete}
+          />
         )}
-        handleCheck={handleCheck}
-        handleDelete={handleDelete}
-      />
+      </main>
       <Footer length={items.length} />
     </div>
   );
