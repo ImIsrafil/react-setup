@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "checked": false,
+      "item": "The Art of Electronics" 
+    },
+    {
+      "id": 2,
+      "checked": false,
+      "item": "Digital Computer Electronics"
+    },
+    {
+      "id": 3,
+      "checked": false,
+      "item": "The ARRL Handbook"
+    }
+  ]
+}
